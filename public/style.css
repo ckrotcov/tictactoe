@@ -1,0 +1,29 @@
+body{background-image: url('img/gray_jean.png'); width: 600px; margin: 0 auto;}
+header h1{text-align: center; margin-bottom: 20px; }
+
+.buttonRow{width: 600px; height: 50px; margin: 0 auto; text-align: center;}
+#humanStart{ float: left;}
+#computerStart{ float: right;}
+
+.board{width: 450px; height: 450px; margin: 0 auto;}
+.row{
+	width: 450px;
+	display: table-row;
+	height: 150px;
+}
+.cell{
+	display: table-cell;
+	border: 1px solid rgba(0,0,0,0.5);
+	width: 150px;
+	height: 150px;
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
+.cell.x{
+	background-image: url('img/x.png');
+}
+
+.cell.o{
+	background-image: url('img/o.png');
+}
