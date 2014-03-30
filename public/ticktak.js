@@ -156,7 +156,6 @@ Game.prototype.makeMove = function(){
 		}
 	}
 	
-	console.log(nextMoveMap);
 	//but the opposite corner is better
 	if(this.opositeCorners.hasOwnProperty(this.lastMove.join(""))){
 		var corner = this.opositeCorners[this.lastMove.join("")];
@@ -165,11 +164,6 @@ Game.prototype.makeMove = function(){
 		if(!isNaN(nextMoveMap[corner[0][corner[1]]])){
 			nextMoveMap[corner[0]][corner[1]] = 2;
 		}
-		
-		//but forks are evil
-		//if(nextMoveMap[corner[0]][corner[1]] == opponentLetter){
-		//	nextMoveMap[corner[0]][1] = 3;
-		//}
 		
 	}
 	
@@ -217,9 +211,6 @@ Game.prototype.makeMove = function(){
 			}
 		}
 	}
-	console.log(maxX, maxY);
-	console.log(nextMoveMap);
-	console.log(this.map);
 	
 	if(maxX == -1 && maxY == -1){
 		this.gameState = "draw";
