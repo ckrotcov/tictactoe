@@ -1,6 +1,7 @@
 var Game = function(startLetter){
 	
-	this.index = -1;	
+	this.index = -1;
+	this.gameState = "started";	
 	this.cornersArray = [[0, 0], [0, 2], [2, 0], [2,2]];
 	this.opositeCorners = {
 		"00": [2,2],
@@ -8,6 +9,13 @@ var Game = function(startLetter){
 		"20": [0,2],
 		"22": [0,0]
 	};
+	
+	this.sides = {
+		"01": [[0,0], [2,0]],
+		"10": [[0,0], [2,0]],
+		"12": [[0,2], [2,2]],
+		"21": [[2,0], [2,2]]};
+		
 	this.lastMove = [-1, -1];
 	this.currentLetter = startLetter || "X";
 	this.init();
@@ -47,6 +55,7 @@ Game.prototype.init = function(){
 Game.prototype.reset = function(startLetter){
 	
 	this.currentLetter = "X";
+	this.gameState = "started";
 	this.cells.unbind("click");
 	this.cells.removeClass("x").removeClass("o");
 	this.init();
@@ -107,7 +116,9 @@ Game.prototype.renderMove= function(el, x, y){
 	moveCell.addClass(this.currentLetter.toLowerCase());
 		
 	if (this.checkforWin(x, y, this.currentLetter)){
-		alert(this.currentLetter + " Wins");
+		this.gameState = this.currentLetter + " Wins";
+		alert(this.gameState);
+		this.cells.unbind("click");
 	} else {
 		
 		this.currentLetter = (this.currentLetter == "X") ? this.currentLetter = "O" : this.currentLetter = "X";
@@ -117,6 +128,10 @@ Game.prototype.renderMove= function(el, x, y){
 
 Game.prototype.makeMove = function(){
 	
+	if(this.gameState != "started"){
+		alert(this.gameState);
+		return false;
+	}
 	var opponentLetter = (this.currentLetter == "X") ? "O" : "X";
 	
 	//Deep copy the map array. 
@@ -131,6 +146,17 @@ Game.prototype.makeMove = function(){
 		}
 	}
 	
+
+	if(this.sides.hasOwnProperty(this.lastMove.join(""))){
+		var sidePlayed = this.sides[this.lastMove.join("")];
+		for(var i=0; i<2; i++){
+			if(!isNaN(nextMoveMap[sidePlayed[i][0]][sidePlayed[i][1]])){
+				nextMoveMap[sidePlayed[i][0]][sidePlayed[i][1]]	= 3;
+			}
+		}
+	}
+	
+	console.log(nextMoveMap);
 	//but the opposite corner is better
 	if(this.opositeCorners.hasOwnProperty(this.lastMove.join(""))){
 		var corner = this.opositeCorners[this.lastMove.join("")];
@@ -141,9 +167,9 @@ Game.prototype.makeMove = function(){
 		}
 		
 		//but forks are evil
-		if(nextMoveMap[corner[0]][corner[1]] == opponentLetter){
-			nextMoveMap[corner[0]][1] = 3;
-		}
+		//if(nextMoveMap[corner[0]][corner[1]] == opponentLetter){
+		//	nextMoveMap[corner[0]][1] = 3;
+		//}
 		
 	}
 	
@@ -152,17 +178,7 @@ Game.prototype.makeMove = function(){
 		nextMoveMap[1][1] = 3;
 	}
 	
-	//but I can win check next move for win
-	for(var x=0; x<3; x++){
-		for(var y=0; y<3; y++){
-			if(!isNaN(nextMoveMap[x][y])){
-				if(this.checkforWin(x, y, this.currentLetter)){
-					nextMoveMap[x][y] = 5;
-				} 
-			}
-		}
-	}
-	
+		
 	//Can opponent win on the next move then block it
 	for(var x=0; x<3; x++){
 		for(var y=0; y<3; y++){
@@ -177,6 +193,17 @@ Game.prototype.makeMove = function(){
 		}
 	}
 	
+	//but I can win check next move for win
+	for(var x=0; x<3; x++){
+		for(var y=0; y<3; y++){
+			if(!isNaN(nextMoveMap[x][y])){
+				if(this.checkforWin(x, y, this.currentLetter)){
+					nextMoveMap[x][y] = 5;
+				} 
+			}
+		}
+	}
+
 	//Grab the highest value out of all possible moves and play the next piece there
 	var maxX = -1; maxY = -1, maxVal = 0;
 	for(var x=0; x<3; x++){
@@ -190,9 +217,14 @@ Game.prototype.makeMove = function(){
 			}
 		}
 	}
+	console.log(maxX, maxY);
+	console.log(nextMoveMap);
+	console.log(this.map);
 	
 	if(maxX == -1 && maxY == -1){
-		alert("Draw");
+		this.gameState = "draw";
+		alert("draw");
+		this.cells.unbind("click");
 	} else {
 		this.renderMove(null, maxX, maxY);
 	}	
